@@ -7,7 +7,7 @@
 文件包含了一个结构体`PPMdata`，其中有三个分量`int r,g,b`表示三种颜色分量。
 包含了一个类`Graph`，用来画图。
 
-## 新建一张图：
+## 新建一张图
 ```cpp
 Graph G(width, height, centerX, centerY, rangeX, rangeY, gridX, gridY, line, grid, background, axis, s);
 ```
