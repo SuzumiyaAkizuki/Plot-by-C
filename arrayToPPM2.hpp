@@ -13,6 +13,13 @@ typedef struct {
 	int r, g, b;
 } PPMdata;
 
+template<class T>
+void swap(T &a, T &b) {
+	T c(a);
+	a = b;
+	b = c;
+}
+
 PPMdata makePPMdata(int r, int g, int b) {
 	PPMdata ans;
 	ans.r = r, ans.g = g, ans.b = b;
@@ -132,7 +139,7 @@ Graph::~Graph() {
 
 void Graph::draw() {
 	if (drawed) {
-		fprintf(stderr,"This Graph has been drawed in %s.\n", fileName);
+		fprintf(stderr, "This Graph has been drawed in %s.\n", fileName);
 	}
 	freopen(fileName, "w", stdout);
 	printf("P3\n");
@@ -173,10 +180,8 @@ void Graph::drawPoint(double x, double y, int size) {
 
 void Graph::drawPos(int u, int v, PPMdata color) {
 	if (u >= width || u < 0 || v >= height || v < 0) {
-		fprintf(stderr,"drawPosError:out of range.\n");
 		return;
-	}
-	else matrix[v][u] = color;
+	} else matrix[v][u] = color;
 }
 
 bool Graph::drawLine(double x1, double y1, double x2, double y2) {
@@ -186,27 +191,34 @@ bool Graph::drawLine(double x1, double y1, double x2, double y2) {
 	v1 = num2MatPos(y1, 0);
 	v2 = num2MatPos(y2, 0);
 	//fprintf(stderr, "%f %f %f %f \n", x1, y1, x2, y2);
-	if(u1>=width || u1<0 || u2>=width || u2<0 || v1>=height || v1<0 || v2>=height || v2<0){
-		fprintf(stderr,"drawLineError:out of range.\n");
+	if (u1 >= width || u1 < 0 || u2 >= width || u2 < 0 || v1 >= height || v1 < 0 || v2 >= height || v2 < 0) {
+		fprintf(stderr, "drawLineError:out of range.\n");
 		return 0;
 	}
 	double k = INF;
 	if (u2 != u1)
 		k = (v2 * 1.0 - v1 * 1.0) / (u2 * 1.0 - u1 * 1.0);
 	if (fabs(k) >= 2.0) {
-		double minY, maxY;
-		minY = (y1 > y2) ? y2 : y1;
-		maxY = (y1 > y2) ? y1 : y2;
-		for (double y = minY; y <= maxY; y += stepY) {
-			//fprintf(stderr, "---%f %f ---\n", linerFuncY(x1, y1, x2, y2, y), y);
-			drawPoint(linerFuncY(x1, y1, x2, y2, y), y, 1);
+		if (y1 > y2) {
+			swap(x1, x2);
+			swap(y1, y2);
+		}
+		k=(x2-x1)/(y2-y1);
+		double x11=x1;
+		for (double y = y1; y <= y2; y += stepY) {
+			drawPoint(x11, y, 1);
+			x11+=stepY*k;
 		}
 	} else {
-		double minX, maxX;
-		minX = (x1 > x2) ? x2 : x1;
-		maxX = (x1 > x2) ? x1 : x2;
-		for (double x = minX; x <= maxX; x += stepX) {
-			drawPoint(x, linerFunc(x1, y1, x2, y2, x), 1);
+		if(x1>x2){
+			swap(x1,x2);
+			swap(y1,y2);
+		}
+		k=(y2-y1)/(x2-x1);
+		double y11=y1;
+		for (double x = x1; x <= x2; x += stepX) {
+			drawPoint(x, y11, 1);
+			y11+=stepX*k;
 		}
 	}
 	//fprintf(stderr, "line cpc.\n");
@@ -214,7 +226,7 @@ bool Graph::drawLine(double x1, double y1, double x2, double y2) {
 }
 
 bool Graph::drawXY(double *x, double *y_save, int arrayLen) {
-	
+
 	double *y = (double*)malloc(sizeof(double) * (arrayLen + 2));
 	for (int i = 0; i < arrayLen; ++i)
 		y[i] = y_save[i];
@@ -233,7 +245,7 @@ bool Graph::drawXY(double *x, double *y_save, int arrayLen) {
 		}
 	}
 	for (int i = 1; i < arrayLen; ++i) {
-		if(i>=arrayLen) break;
+		if (i >= arrayLen) break;
 		drawLine(x[i - 1], y[i - 1], x[i], y[i]);
 	}
 	free(y);
